@@ -18,7 +18,7 @@
 # 기술스택
 
 - JAVA 17 
-- Spring Boot 3.2.2
+- Spring Boot 3.1.4
 - MyBatis
 - MySQL
 - Redis
