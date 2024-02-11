@@ -1,5 +1,6 @@
 package com.yg.boardserver.controller;
 
+import com.yg.boardserver.aop.LoginCheck;
 import com.yg.boardserver.dto.UserDTO;
 import com.yg.boardserver.dto.request.UserDeleteId;
 import com.yg.boardserver.dto.request.UserLoginRequest;
@@ -43,23 +44,21 @@ public class UserController {
     @PostMapping("sign-in")
     public HttpStatus login(@RequestBody UserLoginRequest loginRequest,
                             HttpSession session) {
-        ResponseEntity<LoginResponse> responseEntity = null;
+        ResponseEntity<LoginResponse> responseEntity;
         String id = loginRequest.getUserId();
         String password = loginRequest.getPassword();
         UserDTO userInfo = userService.login(id, password);
 
         if (userInfo == null) {
             return HttpStatus.NOT_FOUND;
-        } else if (userInfo != null) {
+        } else {
             loginResponse = LoginResponse.success(userInfo);
             if (userInfo.getStatus() == (UserDTO.Status.ADMIN))
                 SessionUtil.setLoginAdminId(session, id);
             else
                 SessionUtil.setLoginMemberId(session, id);
 
-            responseEntity = new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK);
-        } else {
-            throw new RuntimeException("Login Error! 유저 정보가 없거나 지워진 유저 정보입니다.");
+            responseEntity = new ResponseEntity<>(loginResponse, HttpStatus.OK);
         }
 
         return HttpStatus.OK;
@@ -79,16 +78,16 @@ public class UserController {
     }
 
     @PatchMapping("password")
-    public ResponseEntity<LoginResponse> updateUserPassword(@RequestBody UserUpdatePasswordRequest userUpdatePasswordRequest,
+    @LoginCheck(type = LoginCheck.UserType.USER)
+    public ResponseEntity<LoginResponse> updateUserPassword(String accountId, @RequestBody UserUpdatePasswordRequest userUpdatePasswordRequest,
                                                             HttpSession session) {
         ResponseEntity<LoginResponse> responseEntity = null;
-        String Id = SessionUtil.getLoginMemberId(session);
         String beforePassword = userUpdatePasswordRequest.getBeforePassword();
         String afterPassword = userUpdatePasswordRequest.getAfterPassword();
 
         try {
-            userService.updatePassword(Id, beforePassword, afterPassword);
-            ResponseEntity.ok(new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK));
+            userService.updatePassword(accountId, beforePassword, afterPassword);
+            ResponseEntity.ok(new ResponseEntity<>(loginResponse, HttpStatus.OK));
         } catch (IllegalArgumentException e) {
             log.error("updatePassword 실패", e);
             responseEntity = FAIL_RESPONSE;
@@ -99,12 +98,12 @@ public class UserController {
     @DeleteMapping
     public ResponseEntity<LoginResponse> deleteId(@RequestBody UserDeleteId userDeleteId,
                                                   HttpSession session) {
-        ResponseEntity<LoginResponse> responseEntity = null;
+        ResponseEntity<LoginResponse> responseEntity;
         String Id = SessionUtil.getLoginMemberId(session);
 
         try {
             userService.deleteId(Id, userDeleteId.getPassword());
-            responseEntity = new ResponseEntity<LoginResponse>(loginResponse, HttpStatus.OK);
+            responseEntity = new ResponseEntity<>(loginResponse, HttpStatus.OK);
         } catch (RuntimeException e) {
             log.info("deleteID 실패");
             responseEntity = FAIL_RESPONSE;
