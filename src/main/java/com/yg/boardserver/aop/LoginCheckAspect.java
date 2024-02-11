@@ -20,7 +20,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Order()
 @Log4j2
 public class LoginCheckAspect {
-    @Around("@annotation(com.fastcampus.boardserver.aop.LoginCheck) && @ annotation(loginCheck)")
+    @Around("@annotation(com.yg.boardserver.aop.LoginCheck) && @ annotation(loginCheck)")
     public Object adminLoginCheck(ProceedingJoinPoint proceedingJoinPoint, LoginCheck loginCheck) throws Throwable {
         HttpSession session = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest().getSession();
         String id = null;
