@@ -91,7 +91,7 @@
 
 - Python 3.9, Locust
 
-  [성능테스트 툴](https://github.com/ccommit-dev/Board-Server-Locust)
+  [성능테스트 툴](https://github.com/YG-creator/board-Locust)
 
 
 
