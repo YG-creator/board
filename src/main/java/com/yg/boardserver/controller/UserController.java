@@ -44,21 +44,19 @@ public class UserController {
     @PostMapping("sign-in")
     public HttpStatus login(@RequestBody UserLoginRequest loginRequest,
                             HttpSession session) {
-        ResponseEntity<LoginResponse> responseEntity;
-        String id = loginRequest.getUserId();
+        String userId = loginRequest.getUserId();
         String password = loginRequest.getPassword();
-        UserDTO userInfo = userService.login(id, password);
+        UserDTO userInfo = userService.login(userId, password);
+        String id = Integer.toString(userInfo.getId());
 
         if (userInfo == null) {
             return HttpStatus.NOT_FOUND;
         } else {
             loginResponse = LoginResponse.success(userInfo);
-            if (userInfo.getStatus() == (UserDTO.Status.ADMIN))
+            if (userInfo.isAdmin())
                 SessionUtil.setLoginAdminId(session, id);
             else
                 SessionUtil.setLoginMemberId(session, id);
-
-            responseEntity = new ResponseEntity<>(loginResponse, HttpStatus.OK);
         }
 
         return HttpStatus.OK;
@@ -73,14 +71,13 @@ public class UserController {
     }
 
     @PutMapping("logout")
-    public void logout(String accountId, HttpSession session) {
+    public void logout(HttpSession session) {
         SessionUtil.clear(session);
     }
 
     @PatchMapping("password")
     @LoginCheck(type = LoginCheck.UserType.USER)
-    public ResponseEntity<LoginResponse> updateUserPassword(String accountId, @RequestBody UserUpdatePasswordRequest userUpdatePasswordRequest,
-                                                            HttpSession session) {
+    public ResponseEntity<LoginResponse> updateUserPassword(String accountId, @RequestBody UserUpdatePasswordRequest userUpdatePasswordRequest) {
         ResponseEntity<LoginResponse> responseEntity = null;
         String beforePassword = userUpdatePasswordRequest.getBeforePassword();
         String afterPassword = userUpdatePasswordRequest.getAfterPassword();
@@ -99,10 +96,10 @@ public class UserController {
     public ResponseEntity<LoginResponse> deleteId(@RequestBody UserDeleteId userDeleteId,
                                                   HttpSession session) {
         ResponseEntity<LoginResponse> responseEntity;
-        String Id = SessionUtil.getLoginMemberId(session);
+        String id = SessionUtil.getLoginMemberId(session);
 
         try {
-            userService.deleteId(Id, userDeleteId.getPassword());
+            userService.deleteId(id, userDeleteId.getPassword());
             responseEntity = new ResponseEntity<>(loginResponse, HttpStatus.OK);
         } catch (RuntimeException e) {
             log.info("deleteID 실패");

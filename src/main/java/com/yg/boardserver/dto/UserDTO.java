@@ -1,5 +1,6 @@
 package com.yg.boardserver.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,6 +10,7 @@ import java.util.Date;
 @Getter
 @Setter
 @ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserDTO {
     public enum Status {
         DEFAULT, ADMIN, DELETED
@@ -26,7 +28,7 @@ public class UserDTO {
     public UserDTO(){
     }
 
-    public UserDTO(String id, String password, String name, String phone, String address, Status status, Date createTime, Date updateTime, boolean isAdmin) {
+    public UserDTO(String id, String password, String name, Status status, Date createTime, Date updateTime, boolean isAdmin) {
         this.userId = id;
         this.password = password;
         this.nickName = name;

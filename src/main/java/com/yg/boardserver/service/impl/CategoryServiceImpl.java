@@ -3,20 +3,16 @@ package com.yg.boardserver.service.impl;
 import com.yg.boardserver.dto.CategoryDTO;
 import com.yg.boardserver.mapper.CategoryMapper;
 import com.yg.boardserver.service.CategoryService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryMapper categoryMapper;
-
-    @Autowired
-    public CategoryServiceImpl(CategoryMapper categoryMapper) {
-        this.categoryMapper = categoryMapper;
-    }
 
     @Override
     public void register(String accountId, CategoryDTO categoryDTO) {
