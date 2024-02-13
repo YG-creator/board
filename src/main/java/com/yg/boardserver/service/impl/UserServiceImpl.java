@@ -4,22 +4,18 @@ import com.yg.boardserver.exception.DuplicateIdException;
 import com.yg.boardserver.mapper.UserProfileMapper;
 import com.yg.boardserver.service.UserService;
 import com.yg.boardserver.utils.SHA256Util;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserProfileMapper userProfileMapper;
-
-    public UserServiceImpl(UserProfileMapper userProfileMapper) {
-        this.userProfileMapper = userProfileMapper;
-    }
+    private final UserProfileMapper userProfileMapper;
 
     @Override
     public UserDTO getUserInfo(String userId) {
@@ -45,8 +41,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO login(String id, String password) {
         String cryptoPassword = SHA256Util.encryptSHA256(password);
-        UserDTO memberInfo = userProfileMapper.findByIdAndPassword(id, cryptoPassword);
-        return memberInfo;
+        return userProfileMapper.findByIdAndPassword(id, cryptoPassword);
     }
 
     @Override
@@ -61,7 +56,6 @@ public class UserServiceImpl implements UserService {
 
         if (memberInfo != null) {
             memberInfo.setPassword(SHA256Util.encryptSHA256(afterPassword));
-            int insertCount = userProfileMapper.updatePassword(memberInfo);
         } else {
             log.error("updatePasswrod ERROR! {}", memberInfo);
             throw new IllegalArgumentException("updatePasswrod ERROR! 비밀번호 변경 메서드를 확인해주세요\n" + "Params : " + memberInfo);

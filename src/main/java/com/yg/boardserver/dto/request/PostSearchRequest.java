@@ -17,5 +17,4 @@ public class PostSearchRequest {
     private int categoryId;
     private int userId;
     private SortStatus sortStatus;
-    private String tagName;
 }
