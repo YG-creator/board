@@ -5,6 +5,7 @@ import com.yg.boardserver.dto.request.PostSearchRequest;
 import com.yg.boardserver.exception.BoardServerException;
 import com.yg.boardserver.mapper.PostSearchMapper;
 import com.yg.boardserver.service.PostSearchService;
+import com.yg.boardserver.service.SlackService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.cache.annotation.Cacheable;
@@ -20,6 +21,7 @@ import java.util.List;
 public class PostSearchServiceImpl implements PostSearchService {
 
     private final PostSearchMapper productSearchMapper;
+    private final SlackService slackService;
 
     @Async
     @Cacheable(value = "getProducts", key = "'getProducts' + #postSearchRequest.getName() + #postSearchRequest.getCategoryId()")
@@ -29,6 +31,8 @@ public class PostSearchServiceImpl implements PostSearchService {
         try {
             postDTOList = productSearchMapper.selectPosts(postSearchRequest);
         } catch (RuntimeException e) {
+            slackService.sendSlackMessage("selectPosts 실패 " +e.getMessage(),"error");
+            log.error("selectPosts 실패");
             log.error("selectPosts 실패");
             throw new BoardServerException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }

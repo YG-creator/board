@@ -1,5 +1,6 @@
 package com.yg.boardserver.controller;
 
+import com.yg.boardserver.service.SlackService;
 import com.yg.boardserver.service.SnsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class SnsController {
 
     private final SnsService snsService;
+    private final SlackService slackService;
 
     @PostMapping("/create-topic")
     public ResponseEntity<String> createTopic(@RequestParam final String topicName) {
@@ -75,6 +77,13 @@ public class SnsController {
         return new ResponseStatusException(
                 HttpStatus.INTERNAL_SERVER_ERROR, response.sdkHttpResponse().statusText().get()
         );
+    }
+
+    // slack
+    @GetMapping("/slack/error")
+    public void error(){
+        log.info("슬랙 error 채널 테스트");
+        slackService.sendSlackMessage("슬랙 에러 테스트", "error");
     }
 
 }
